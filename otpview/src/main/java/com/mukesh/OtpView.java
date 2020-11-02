@@ -31,13 +31,6 @@ import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.ColorInt;
-import androidx.annotation.DrawableRes;
-import androidx.annotation.Nullable;
-import androidx.annotation.Px;
-import androidx.core.content.res.ResourcesCompat;
-import androidx.core.view.ViewCompat;
-import androidx.appcompat.widget.AppCompatEditText;
 import android.text.InputFilter;
 import android.text.TextPaint;
 import android.text.TextUtils;
@@ -46,6 +39,14 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.EditorInfo;
+
+import androidx.annotation.ColorInt;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.Nullable;
+import androidx.annotation.Px;
+import androidx.appcompat.widget.AppCompatEditText;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.core.view.ViewCompat;
 
 public class OtpView extends AppCompatEditText {
 
@@ -62,6 +63,8 @@ public class OtpView extends AppCompatEditText {
   private static final int VIEW_TYPE_RECTANGLE = 0;
   private static final int VIEW_TYPE_LINE = 1;
   private static final int VIEW_TYPE_NONE = 2;
+  private static final int MODE_FILL = 0;
+  private static final int MODE_DEFAULT = 1;
   private int viewType;
   private int otpViewItemCount;
   private int otpViewItemWidth;
@@ -93,6 +96,7 @@ public class OtpView extends AppCompatEditText {
   private String maskingChar;
   private boolean isAllCaps = false;
   private OnOtpCompletionListener onOtpCompletionListener;
+  private int mode;
 
   public OtpView(Context context) {
     this(context, null);
@@ -132,6 +136,7 @@ public class OtpView extends AppCompatEditText {
     rtlTextDirection = typedArray.getBoolean(R.styleable.OtpView_OtpRtlTextDirection, false);
     maskingChar = typedArray.getString(R.styleable.OtpView_OtpMaskingChar);
     isAllCaps = typedArray.getBoolean(R.styleable.OtpView_android_textAllCaps,false);
+    mode = typedArray.getInt(R.styleable.OtpView_OtpViewMode, MODE_DEFAULT);
     typedArray.recycle();
     if (lineColor != null) {
       cursorLineColor = lineColor.getDefaultColor();
@@ -203,15 +208,20 @@ public class OtpView extends AppCompatEditText {
     int width;
     int height;
     int boxHeight = otpViewItemHeight;
+    int paddingEnd = ViewCompat.getPaddingEnd(this);
+    int paddingStart = ViewCompat.getPaddingStart(this);
     if (widthMode == MeasureSpec.EXACTLY) {
       width = widthSize;
     } else {
       int boxesWidth =
           (otpViewItemCount - 1) * otpViewItemSpacing + otpViewItemCount * otpViewItemWidth;
-      width = boxesWidth + ViewCompat.getPaddingEnd(this) + ViewCompat.getPaddingStart(this);
+      width = boxesWidth + paddingEnd + paddingStart;
       if (otpViewItemSpacing == 0) {
         width -= (otpViewItemCount - 1) * lineWidth;
       }
+    }
+    if (mode == MODE_FILL) {
+      otpViewItemSpacing = (width - paddingEnd - paddingStart - otpViewItemWidth * otpViewItemCount)/(otpViewItemCount - 1);
     }
     height = heightMode == MeasureSpec.EXACTLY ? heightSize
         : boxHeight + getPaddingTop() + getPaddingBottom();

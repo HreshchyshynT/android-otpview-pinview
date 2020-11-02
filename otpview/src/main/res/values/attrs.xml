@@ -42,5 +42,9 @@
     <attr format="boolean" name="OtpState_filled"/>
     <attr format="boolean" name="OtpRtlTextDirection"/>
     <attr format="string" name="OtpMaskingChar"/>
+    <attr format="enum" name="OtpViewMode">
+      <enum name="fill" value="0"/>
+      <enum name="modeDefault" value="1"/>
+    </attr>
   </declare-styleable>
 </resources>
